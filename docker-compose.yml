@@ -1,0 +1,49 @@
+name: rathena-env
+
+services:
+  # MariaDB：rAthena 的数据库（login / char / map / log 共用）
+  db:
+    image: mariadb:10.11
+    container_name: rathena_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ragnarok}
+      MYSQL_USER: ${MYSQL_USER:-ragnarok}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ragnarok}
+      TZ: ${TZ:-Asia/Shanghai}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      # 数据库文件保存在 Docker 命名卷里，不污染仓库目录；重置用 09-重置数据库.bat
+      - rathena_mysql_data:/var/lib/mysql
+      # 首次启动（数据卷为空时）自动导入表结构
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+  # phpMyAdmin：浏览器里管理数据库（可选，但很方便）
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: rathena_pma
+    restart: always
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      UPLOAD_LIMIT: 256M
+    ports:
+      - "${PMA_PORT:-8080}:80"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  rathena_mysql_data:
