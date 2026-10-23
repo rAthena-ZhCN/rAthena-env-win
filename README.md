@@ -55,7 +55,8 @@ rAthena-env-win/
 │   ├── 00-databases.sql   创建 ragnarok / ragnarok_log
 │   ├── 10-main.sql        rAthena 主表结构
 │   ├── 20-logs.sql        日志表结构
-│   └── 30-roulette.sql    转盘默认数据
+│   ├── 30-roulette.sql    转盘默认数据
+│   └── 40-web.sql         Web 服务器表（user_configs 等）
 ├── 01-启动环境.bat        启动（推荐日常使用）
 ├── 02-关闭环境.bat        停止容器（数据保留）
 ├── 03-查看状态.bat        查看容器/数据库状态
@@ -88,7 +89,7 @@ docker exec -i rathena_db mysql -uroot -proot < backup.sql
 
 - 全新安装：`09-重置数据库.bat` 重新初始化即可；
 - 保留数据升级：按 rAthenaZhCN `sql-files/upgrades/` 里的升级脚本手动执行；
-- 想同步最新结构：把 rAthenaZhCN `sql-files/main.sql` 覆盖到 `initdb/10-main.sql`，`logs.sql` 覆盖到 `initdb/20-logs.sql` 并保留文件开头的 `USE ragnarok_log;`。
+- 想同步最新结构：把 rAthenaZhCN `sql-files/main.sql` 覆盖到 `initdb/10-main.sql`，`logs.sql` 覆盖到 `initdb/20-logs.sql` 并保留文件开头的 `USE ragnarok_log;`，`web.sql` 覆盖到 `initdb/40-web.sql`。
 
 ## 八、常见问题
 
